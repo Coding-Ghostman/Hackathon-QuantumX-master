@@ -1,0 +1,27 @@
+<!--Profile template restricted to logged in users. USer's details are available here -->
+{% extends 'layout.html' %} {% block title %}Profile{% endblock %} {% block home_page %}
+<a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
+{% endblock %} {% block admin_page %}<a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i>Profile</a>{% endblock %} {% block content %}
+<h2>Profile Page</h2>
+<div>
+   <p>Your account details are below:</p>
+   <table>
+      <tr>
+         <td>Username:</td>
+         <td>{{ session['username'] }}</td>
+      </tr>
+      <tr>
+         <td>Password:</td>
+         <td>{{ session['password'] }}</td>
+      </tr>
+      <tr>
+         <td>Email:</td>
+         <td>{{ session['email'] }}</td>
+      </tr>
+   </table>
+   <form action="http://localhost:5000/uploader" method="POST" enctype="multipart/form-data">
+      <input type="file" name="file" />
+      <input type="submit" />
+   </form>
+</div>
+{% endblock %}
