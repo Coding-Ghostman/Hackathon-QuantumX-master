@@ -1,75 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-from werkzeug.utils import secure_filename
-from flask_mysqldb import MySQL
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrameReader
 from urllib.request import urlopen
 from pymongo import MongoClient
 from prophet import Prophet
 from datetime import date
-import pandas as pd
 import requests
 import pymongo
-import json
-import re
+import pandas as pd
 import os
-
-app = Flask(__name__)# Change this to your secret key (can be anything, it's for extra protection)
-app.secret_key = 'your secret key'
-
-client = MongoClient("mongodb://localhost:27017/")        
-db = client['Real_Time_Weather']
-collection = db["sample"]
-
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars file:///C:/Users/Ansuman/Hackathon-QuantumX-master/python_login/mongo-spark-connector_2.12-3.0.1-assembly.jar pyspark-shell'
-spark = SparkSession.builder \
-    .appName("MyApp") \
-    .config("spark.mongodb.output.uri", "mongodb://localhost:27017/") \
-    .config("spark.mongodb.output.collection", collection) \
-    .getOrCreate()
-    
-
-# http://localhost:5000/pythonlogin/ - the following will be our login page, which will use both GET and POST requests
-@app.route('/', methods=['GET', 'POST'])
-def login():
-    return render_template('index1.html')
-
-@app.route('/test', methods=['GET', 'POST'])
-def testfn():
-    if request.method == 'GET':
-        msg = {"Greetings": "Hello from Flask"}
-        return jsonify(msg)
-
-@app.route('/get_city_data/<string:cityInput>', methods=['POST'])
-def get_city_data(cityInput):
-    # cityInput = json.load(cityInput)
-    global loc
-    loc = cityInput
-    loc = loc[1:-1]
-    print(loc)
-    try:
-        if (db.validate_collection(f"{loc}")):  # Try to validate a collection
-            print("Collection exists")
-            
-            data_pdf = retrieve_data_from_mongo(spark)
-            data_df = preprocess_data(data_pdf)
-            df = process_for_prophet(data_df, "Temp")
-            future = get_future_df()
-            model, fore = prophet_model_training(df, future)
-            print(fore[["ds","yhat_upper", "yhat_lower", "yhat"]])
-    
-    except pymongo.errors.OperationFailure:  # If the collection doesn't exist
-        print("Collecting History Data")
-        data_into_mongo(loc, client)
-        print("Data is collected")
-        data_pdf = retrieve_data_from_mongo(spark)
-        data_df = preprocess_data(data_pdf)
-        df = process_for_prophet(data_df, "Temp")
-        future = get_future_df()
-        model, fore = prophet_model_training(df, future)
-        print(fore[["ds","yhat_upper", "yhat_lower", "yhat"]])
-    
-    return('/')
 
 def data_into_mongo(location, client):
     days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -143,8 +81,34 @@ def prophet_model_training(df, future):
     forecast = prophet_model.predict(future)
     return prophet_model,forecast
 
+payload={}
+headers = {}
 
-if __name__ == '__main__':
-    app.run()
+client = MongoClient("mongodb://localhost:27017/")        
+db = client['Real_Time_Weather']
+collection = db["sample"]
+loc = input("Enter the location: ")
+
+try:
+    if (db.validate_collection(f"{loc}")):  # Try to validate a collection
+        print("Collection exists")
     
-# python -m flask --app main.py run --debugger --reload
+    os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars file:///C:/Users/Ansuman/Desktop/MiniProject/mongo-spark-connector_2.12-3.0.1-assembly.jar pyspark-shell'
+
+    spark = SparkSession.builder \
+        .appName("MyApp") \
+        .config("spark.mongodb.output.uri", "mongodb://localhost:27017/") \
+        .config("spark.mongodb.output.collection", collection) \
+        .getOrCreate()
+    
+    data_pdf = retrieve_data_from_mongo(spark)
+    data_df = preprocess_data(data_pdf)
+    df = process_for_prophet(data_df, "Temp")
+    future = get_future_df()
+    model, fore = prophet_model_training(df, future)
+        
+        
+except pymongo.errors.OperationFailure:  # If the collection doesn't exist
+    print("Collecting History Data")
+    data_into_mongo(loc, client)
+

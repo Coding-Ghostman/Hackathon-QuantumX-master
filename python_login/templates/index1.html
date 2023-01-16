@@ -1,0 +1,73 @@
+<html>
+
+    <head>
+        <title>the.weather</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}" />
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+        <!-- <link rel="stylesheet" href="style.css"> -->
+    </head>
+
+    <body>
+        <div class="weather-app">
+            <div class="container">
+                <h3 class="brand">The Weather</h3>
+                <div>
+                    <h1 class="temp">16&#176</h1>
+                    <div class="city-time">
+                        <h1 class="name">London</h1>
+                        <small>
+                            <span class="time">06:00</span> - <span class="date">Monday Sep
+                                19</span>
+                        </small>
+                    </div>
+                    <div class="weather">
+                        <img src="static/icons/day/113.png" class="icon" alt="icon" width="50"
+                            height="50" />
+                        <span class="condition">Cloudy</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <form id="locationInput">
+                    <input type="text" class="search" placeholder="Search Location..." />
+                    <button type="submit" class="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+                <ul class="cities">
+                    <li class="city">New York</li>
+                    <li class="city">California</li>
+                    <li class="city">Paris</li>
+                    <li class="city">Tokyo</li>
+                </ul>
+                <label for="lang">Variable</label>
+                <select name="languages" id="selection">
+                    <option value="temp">Temp</option>
+                    <option value="humidity">Humidity</option>
+                    <option value="rain">Rain</option>
+                    <option value="windspeed">Wind Speed</option>
+                    <option value="pressure">Pressure</option>
+                    <span class="focus"></span>
+                </select>
+                <ul class="details">
+                    <h4>Weather Details</h4>
+                    <li>
+                        <span>Cloudy</span>
+                        <span class="cloud">89%</span>
+                    </li>
+                    <li>
+                        <span>Humidity</span>
+                        <span class="humidity">64%</span>
+                    </li>
+                    <li>
+                        <span>Wind</span>
+                        <span class="wind">8km/hr</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <script src="static/script.js"></script>
+    </body>
+
+</html>
