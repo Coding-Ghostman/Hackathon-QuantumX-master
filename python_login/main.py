@@ -53,7 +53,7 @@ def get_city_data(cityInput):
             
             data_pdf = retrieve_data_from_mongo(spark)
             data_df = preprocess_data(data_pdf)
-            df = process_for_prophet(data_df, "Temp")
+            df = process_for_prophet(data_df, "MinTemp")
             future = get_future_df()
             model, fore = prophet_model_training(df, future)
             print(fore[["ds","yhat_upper", "yhat_lower", "yhat"]])
@@ -64,7 +64,7 @@ def get_city_data(cityInput):
         print("Data is collected")
         data_pdf = retrieve_data_from_mongo(spark)
         data_df = preprocess_data(data_pdf)
-        df = process_for_prophet(data_df, "Temp")
+        df = process_for_prophet(data_df, "MinTemp")
         future = get_future_df()
         model, fore = prophet_model_training(df, future)
         print(fore[["ds","yhat_upper", "yhat_lower", "yhat"]])
@@ -76,7 +76,7 @@ def data_into_mongo(location, client):
     start_date = "2010-01-01"
     db = client['Real_Time_Weather']
     col = db[location]
-    
+    today = date.today()
     for year in [2019, 2020, 2021, 2022]:
         j = 1
         for i in days:
@@ -84,36 +84,43 @@ def data_into_mongo(location, client):
             end_date = "{}-{}-{}".format(year,j,i)
             j += 1
             
-            url = "https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=6052652525c04c6b88b74541222512&q={}&format=json&date={}&enddate={}&includelocation=yes&tp=24".format(location, start_date, end_date)
+            url = "https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=ef778c4ebfc4452aae0141632232201&q={}&format=json&date={}&enddate={}&includelocation=yes&tp=24".format(location, start_date, end_date)
             response = requests.request("GET", url)
             data = response.json()
             for k in data["data"]["weather"]:
                 col.insert_one(k)
-
+    year = 2023            
+    month = int(today.strftime("%m"))
+    day = int(today.strftime("%d")) - 1
+    start_date = "{}-{}-01".format(year,month)
+    end_date = "{}-{}-{}".format(year,month,day)
+    
 def retrieve_data_from_mongo(spark):
     df = spark.read.format("com.mongodb.spark.sql.DefaultSource").option("uri", "mongodb://localhost:27017/Real_Time_Weather.{}".format(loc)).load()
     
     df = df.drop("_id")
     
-    hourly_data = df.select("date","hourly.tempC","hourly.windspeedKmph", "hourly.precipMM", "hourly.humidity", "hourly.pressure").toPandas()
+    hourly_data = df.select("date","maxtempC","mintempC","hourly.windspeedKmph", "hourly.precipMM", "hourly.humidity", "hourly.pressure").toPandas()
     
     return hourly_data
 
 def preprocess_data(data_pdf):
-    data_pdf["Temp"] = data_pdf["tempC"].apply(pd.Series)
+    data_pdf["MaxTemp"] = data_pdf["maxtempC"].apply(pd.Series)
+    data_pdf["MinTemp"] = data_pdf["mintempC"].apply(pd.Series)
     data_pdf["Rain"] = data_pdf["precipMM"].apply(pd.Series)
     data_pdf["Humidity"] = data_pdf["humidity"].apply(pd.Series)
     data_pdf["WindSpeed"] = data_pdf["windspeedKmph"].apply(pd.Series)
     data_pdf["Pressure"] = data_pdf["pressure"].apply(pd.Series)
     
-    data_pdf = data_pdf.drop(['tempC', 'precipMM', "humidity","windspeedKmph", "pressure"], axis=1)
+    data_pdf = data_pdf.drop(['maxtempC', 'mintempC','precipMM', "humidity","windspeedKmph", "pressure"], axis=1)
     
-    convert_dict = {'Temp': int,
-                'Rain': float,
-                'Humidity':int,
-                'WindSpeed': int,
-                'Pressure': int
-                }
+    convert_dict = {'MaxTemp': int,
+                    'MinTemp' : int,
+                    'Rain': float,
+                    'Humidity':int,
+                    'WindSpeed': int,
+                    'Pressure': int
+                    }
     data_pdf = data_pdf.astype(convert_dict)
     data_pdf['date'] = pd.DatetimeIndex(data_pdf['date'])
     
@@ -145,6 +152,6 @@ def prophet_model_training(df, future):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, port = 2000)
     
 # python -m flask --app main.py run --debugger --reload
