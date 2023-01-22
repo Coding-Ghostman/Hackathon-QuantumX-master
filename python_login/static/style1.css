@@ -2,6 +2,7 @@ body {
    margin: 0;
    font-family: "Rubik", sans-serif;
    background: #111;
+   color: #fff;
    box-sizing: border-box;
 }
 
@@ -143,11 +144,11 @@ h3 {
 .panel ul {
    padding: 0 0 1em 0;
    margin: 2em 0;
-   border-bottom: 1px rgb(9, 16, 112);
+   border-bottom: 1px rgb(228, 228, 232);
 }
 
 .panel ul li {
-   color: #rgb(9, 16, 112);
+   color: rgb(244, 244, 244);
    margin: 2.5em 0;
 }
 
@@ -161,7 +162,7 @@ h3 {
 }
 
 .city:hover {
-   color: rgb(16, 24, 143);
+   color: rgb(170, 170, 170);
 }
 
 .details li {
@@ -191,6 +192,38 @@ h3 {
    line-height: 1.1;
    background-color: #fff;
    background-image: linear-gradient(to top, #f9f9f9, #fff 33%);
+}
+
+svg {
+   border: 1px solid rgb(245, 243, 243);
+   text-decoration: none;
+   color: #fff;
+   font-size: 1.2rem;
+}
+
+.graph {
+   width: auto;
+   text-decoration: none;
+   color: #fff;
+   font-size: 1.2rem;
+}
+
+.tooltip {
+   text-decoration: underline;
+}
+
+.axis {
+   font: 10px Georgia, Arial, sans-serif;
+   text-decoration: none;
+   color: #fff;
+   font-size: 1.2rem;
+}
+
+.axis path,
+.axis line {
+   fill: none;
+   stroke: #dadada;
+   shape-rendering: crispEdges;
 }
 
 @media screen and (max-width: 800px) {

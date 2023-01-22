@@ -12,6 +12,7 @@
         <div class="weather-app">
             <div class="container">
                 <h3 class="brand">The Weather</h3>
+                <div class = "graph" id="wordCountContainer"></div>
                 <div>
                     <h1 class="temp">16&#176</h1>
                     <div class="city-time">
@@ -43,11 +44,12 @@
                 </ul>
                 <label for="lang">Variable</label>
                 <select name="languages" id="selection">
-                    <option value="temp">Temp</option>
-                    <option value="humidity">Humidity</option>
-                    <option value="rain">Rain</option>
-                    <option value="windspeed">Wind Speed</option>
-                    <option value="pressure">Pressure</option>
+                    <option value="MaxTemp">Max Temp</option>
+                    <option value="MinTemp">Min Temp</option>
+                    <option value="Humidity">Humidity</option>
+                    <option value="Rain">Rain</option>
+                    <option value="WindSpeed">Wind Speed</option>
+                    <option value="Pressure">Pressure</option>
                     <span class="focus"></span>
                 </select>
                 <ul class="details">
@@ -67,6 +69,7 @@
                 </ul>
             </div>
         </div>
+        <script src="https://d3js.org/d3.v3.min.js"></script>
         <script src="static/script.js"></script>
     </body>
 

@@ -12,15 +12,27 @@ const form = document.getElementById("locationInput");
 const search = document.querySelector(".search");
 const btn = document.querySelector(".submit");
 const cities = document.querySelectorAll("ul li.city");
+const envVariables = document.querySelector("#selection");
+const select = document.getElementById("selection");
+
+select.addEventListener("change", function handleChange(event) {
+   console.log(event.target.value);
+   cityInput = e.target.innerHTML;
+   fetchWeatherData();
+   const request = new XMLHttpRequest();
+   request.open("POST", `/get_city_data/${JSON.stringify(cityInput)}/${JSON.stringify(event.target.value)}`);
+   request.send();
+   app.style.opacity = "0";
+   fetch("/test")
+      .then(function (response) {
+         return response.json();
+      })
+      .then(function (text) {
+         console.log("Get response: " + text);
+      });
+});
 
 // Receiving GET request from Server
-fetch("/test")
-   .then(function (response) {
-      return response.json();
-   })
-   .then(function (text) {
-      console.log("Get response: " + text.Greetings);
-   });
 
 // Default city when the page loads.
 let cityInput = "Bengaluru";
@@ -30,10 +42,18 @@ cities.forEach((city) => {
    city.addEventListener("click", (e) => {
       cityInput = e.target.innerHTML;
       fetchWeatherData();
+      envVar = select.options[select.selectedIndex].value;
       const request = new XMLHttpRequest();
-      request.open("POST", `/get_city_data/${JSON.stringify(cityInput)}`);
+      request.open("POST", `/get_city_data/${JSON.stringify(cityInput)}/${JSON.stringify(envVar)}`);
       request.send();
       app.style.opacity = "0";
+      fetch("/test")
+         .then(function (response) {
+            return response.json();
+         })
+         .then(function (text) {
+            console.log("Get response: " + text);
+         });
    });
 });
 
@@ -43,19 +63,29 @@ form.addEventListener("submit", (e) => {
       alert("Please type in a city name");
    } else {
       cityInput = search.value;
+      envVar = select.options[select.selectedIndex].value;
       fetchWeatherData();
       const request = new XMLHttpRequest();
-      request.open("POST", `/get_city_data/${JSON.stringify(cityInput)}`);
+      request.open("POST", `/get_city_data/${JSON.stringify(cityInput)}/${JSON.stringify(envVar)}`);
       request.send();
       search.value = "";
       app.style.opacity = "0";
+
+      fetch("/test")
+         .then(function (response) {
+            return response.json();
+         })
+         .then(function (text) {
+            console.log("Get response: " + text);
+         });
    }
 
    e.preventDefault();
 });
 
 const request = new XMLHttpRequest();
-request.open("POST", `/get_city_data/${JSON.stringify(cityInput)}`);
+envVar = select.options[select.selectedIndex].value;
+request.open("POST", `/get_city_data/${JSON.stringify(cityInput)}/${JSON.stringify(envVar)}`);
 request.send();
 
 function dayOfTheWeek(day, month, year) {
@@ -146,3 +176,77 @@ function fetchWeatherData() {
 
 fetchWeatherData();
 app.style.opacity = "1";
+
+var margin = { top: 20, right: 20, bottom: 100, left: 60 },
+   width = 600 - margin.left - margin.right,
+   height = 400 - margin.top - margin.bottom,
+   x = d3.scale.ordinal().rangeRoundBands([0, width], 0.5),
+   y = d3.scale.linear().range([height, 0]);
+
+//draw axis
+var xAxis = d3.svg.axis().scale(x).orient("bottom");
+var yAxis = d3.svg.axis().scale(y).orient("left").ticks(5).innerTickSize(-width).outerTickSize(0).tickPadding(10);
+
+var svg = d3
+   .select("#wordCountContainer")
+   .append("svg")
+   .attr("width", width + margin.left + margin.right)
+   .attr("height", height + margin.top + margin.bottom)
+   .append("g")
+   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.json("../static/contentWordCount.json", function (data) {
+   x.domain(
+      data.map(function (d) {
+         return d.name;
+      })
+   );
+
+   y.domain([
+      0,
+      d3.max(data, function (d) {
+         return d.wc;
+      }),
+   ]);
+
+   svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0, " + height + ")")
+      .call(xAxis)
+      .selectAll("text")
+      .style("fill", "white")
+      .style("text-anchor", "middle")
+
+      .attr("dx", "-0.5em")
+      .attr("dy", "-.55em")
+      .attr("y", 30)
+      .attr("transform", "rotate(0)");
+
+   svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 5)
+      .attr("dy", "0.8em")
+      .attr("text-anchor", "end")
+      .text("Word Count")
+      .style("fill", "white");
+
+   svg.selectAll("bar")
+      .data(data)
+      .enter()
+      .append("rect")
+
+      .style("fill", "orange")
+      .attr("x", function (d) {
+         return x(d.name);
+      })
+      .attr("width", x.rangeBand())
+      .attr("y", function (d) {
+         return y(d.wc);
+      })
+      .attr("height", function (d) {
+         return height - y(d.wc);
+      });
+});

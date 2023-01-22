@@ -37,34 +37,38 @@ def login():
 @app.route('/test', methods=['GET', 'POST'])
 def testfn():
     if request.method == 'GET':
-        msg = {"Greetings": "Hello from Flask"}
+        df = fore[["ds", "yhat"]]
+        df["ds"] = df["ds"].astype(str)
+        msg = df.to_json(orient='split')
         return jsonify(msg)
 
-@app.route('/get_city_data/<string:cityInput>', methods=['POST'])
-def get_city_data(cityInput):
+@app.route('/get_city_data/<string:cityInput>/<string:envVariable>', methods=['POST', 'GET'])
+def get_city_data(cityInput, envVariable):
     # cityInput = json.load(cityInput)
-    global loc
-    loc = cityInput
-    loc = loc[1:-1]
+    global loc,fore
+    loc = cityInput[1:-1]
+    env = envVariable[1:-1]
     print(loc)
+    print(env)
+    
     try:
         if (db.validate_collection(f"{loc}")):  # Try to validate a collection
             print("Collection exists")
             
             data_pdf = retrieve_data_from_mongo(spark)
             data_df = preprocess_data(data_pdf)
-            df = process_for_prophet(data_df, "MinTemp")
+            df = process_for_prophet(data_df, env)
             future = get_future_df()
             model, fore = prophet_model_training(df, future)
             print(fore[["ds","yhat_upper", "yhat_lower", "yhat"]])
-    
+            
     except pymongo.errors.OperationFailure:  # If the collection doesn't exist
         print("Collecting History Data")
         data_into_mongo(loc, client)
         print("Data is collected")
         data_pdf = retrieve_data_from_mongo(spark)
         data_df = preprocess_data(data_pdf)
-        df = process_for_prophet(data_df, "MinTemp")
+        df = process_for_prophet(data_df, env)
         future = get_future_df()
         model, fore = prophet_model_training(df, future)
         print(fore[["ds","yhat_upper", "yhat_lower", "yhat"]])
