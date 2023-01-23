@@ -80,15 +80,15 @@ form.addEventListener("submit", (e) => {
          })
          .then(function (text) {
             text = JSON.parse(text);
-            text.forEach((ele, i) => {
-               let text = (document.createElement("p").id = `${ele}${i}`);
-               var text2 = document.createTextNode(ele.ds);
-               text.appendChild(`${text2}`);
-               // text.innerHTML = ele.ds;
-               graph.appendChild(text);
-            });
+            let ul = document.createElement("ul");
             // document.write(text[0].ds);
             // document.getElementById("graphContainer").innerHTML = text[0].ds;
+            for (let user of text) {
+               let li = document.createElement("li");
+               li.innerText = user.ds;
+               ul.appendChild(li);
+            }
+            graph.appendChild(ul);
             console.log("Get response: " + text);
          });
    }
