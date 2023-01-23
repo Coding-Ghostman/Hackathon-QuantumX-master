@@ -14,6 +14,8 @@ const btn = document.querySelector(".submit");
 const cities = document.querySelectorAll("ul li.city");
 const envVariables = document.querySelector("#selection");
 const select = document.getElementById("selection");
+const graph = document.getElementById("graphContainer");
+const date = document.createElement("p");
 
 select.addEventListener("change", function handleChange(event) {
    console.log(event.target.value);
@@ -28,6 +30,7 @@ select.addEventListener("change", function handleChange(event) {
          return response.json();
       })
       .then(function (text) {
+         // document.write(text.ds);
          console.log("Get response: " + text);
       });
 });
@@ -76,6 +79,16 @@ form.addEventListener("submit", (e) => {
             return response.json();
          })
          .then(function (text) {
+            text = JSON.parse(text);
+            text.forEach((ele, i) => {
+               let text = (document.createElement("p").id = `${ele}${i}`);
+               var text2 = document.createTextNode(ele.ds);
+               text.appendChild(`${text2}`);
+               // text.innerHTML = ele.ds;
+               graph.appendChild(text);
+            });
+            // document.write(text[0].ds);
+            // document.getElementById("graphContainer").innerHTML = text[0].ds;
             console.log("Get response: " + text);
          });
    }

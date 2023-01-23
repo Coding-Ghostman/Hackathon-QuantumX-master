@@ -39,12 +39,12 @@ def testfn():
     if request.method == 'GET':
         df = fore[["ds", "yhat"]]
         df["ds"] = df["ds"].astype(str)
-        msg = df.to_json(orient='split')
-        # Serializing json
+        msg = df.to_json(orient='records')
+        # # Serializing json
  
-        # Writing to sample.json
-        with open("sample.json", "w") as outfile:
-            outfile.write(msg)
+        # # Writing to sample.json
+        # with open("sample.json", "w") as outfile:
+        #     outfile.write(msg)
             
         return jsonify(msg)
 
