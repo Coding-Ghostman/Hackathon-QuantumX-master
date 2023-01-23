@@ -16,9 +16,11 @@ import os
 
 app = Flask(__name__)# Change this to your secret key (can be anything, it's for extra protection)
 app.secret_key = 'your secret key'
+
 client = MongoClient("mongodb://localhost:27017/")        
 db = client['Real_Time_Weather']
 collection = db["sample"]
+
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--jars file:///C:/Users/Ansuman/Hackathon-QuantumX-master/python_login/mongo-spark-connector_2.12-3.0.1-assembly.jar pyspark-shell'
 spark = SparkSession.builder \
     .appName("MyApp") \
