@@ -40,6 +40,12 @@ def testfn():
         df = fore[["ds", "yhat"]]
         df["ds"] = df["ds"].astype(str)
         msg = df.to_json(orient='split')
+        # Serializing json
+ 
+        # Writing to sample.json
+        with open("sample.json", "w") as outfile:
+            outfile.write(msg)
+            
         return jsonify(msg)
 
 @app.route('/get_city_data/<string:cityInput>/<string:envVariable>', methods=['POST', 'GET'])
